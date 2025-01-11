@@ -6,10 +6,10 @@ __pycache__/
 venv/
 
 # LaTeX
-# *.aux
-# *.log
-# *.synctex.gz
-# *.out
-# *.toc
-# *.fls
-# *.fdb_latexmk
+*.aux
+*.log
+*.synctex.gz
+*.out
+*.toc
+*.fls
+*.fdb_latexmk
