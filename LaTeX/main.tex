@@ -1,0 +1,111 @@
+\documentclass[a4paper, 12pt,oneside]{book}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[top=0.9in]{geometry}
+\usepackage{titlesec}
+\titleformat{\chapter}[display]
+  {\bfseries\Huge}  {\filright{\Large\chaptertitlename} \Huge\thechapter}
+  {1ex}
+  {}%}\vspace{1ex}\filleft}
+  [\vspace{1ex}\titlerule]
+\usepackage{fancyhdr}
+\fancyhead{\nouppercase}
+\setcounter{tocdepth}{2}
+\setcounter{secnumdepth}{4}
+\usepackage{url}
+\usepackage{listings}
+\usepackage{amsmath,amssymb}
+\usepackage[per-mode=symbol]{siunitx}
+\usepackage[bf]{caption}
+\usepackage{array, booktabs}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage[export]{adjustbox}
+\usepackage{subfig}
+\usepackage{chngcntr}
+\counterwithin{figure}{section}
+\counterwithin{table}{section}
+\usepackage{color, xcolor}
+\usepackage{hyperref}
+
+\usepackage{ulem}
+\hypersetup{
+    colorlinks,
+    citecolor=black,
+    filecolor=black,
+    linkcolor=black,
+    urlcolor=black
+}
+
+\usepackage[backend = biber,
+            natbib = true,
+            style = authoryear,
+            maxcitenames = 2]{biblatex}
+\addbibresource{thesis.bib}
+\usepackage{comment}
+\usepackage{afterpage}
+\usepackage[version=4]{mhchem}
+
+\begin{document}
+
+\begin{titlepage}
+  \vspace*{1.5cm}
+
+  \noindent  \textcolor{gray}{\large Joakim Lunde} \\
+  \vspace{1cm}
+
+  \noindent \textbf{\LARGE Solving Laplace's equation with\\ Physics-Informed Neural Networks \\}
+  \vspace{1cm}
+
+  \noindent TBM4500 - Geotechnics, Project Thesis \\
+  Supervisor: Ivan Depina \\
+  December 2024 \\
+
+  \vspace{9cm}
+  \noindent
+  Norwegian University of Science and Technology \\
+  Faculty of Engineering Science \\
+  Department of Civil and Environmental Engineering \\
+  \vspace{0.8cm}
+
+  \begin{figure}[h]
+    \includegraphics[width=0.28\textwidth]{Figures/ntnu_basic.png}
+  \end{figure}
+\end{titlepage}
+
+\pagenumbering{roman}
+
+\input{chapters/0a-abstract.tex}
+\input{chapters/0b-sammendrag.tex}
+
+
+\tableofcontents
+\addcontentsline{toc}{chapter}{\protect\numberline{}Contents}
+
+
+\listoffigures
+\addcontentsline{toc}{chapter}{\protect\numberline{}\listfigurename}
+
+\listoftables
+\addcontentsline{toc}{chapter}{\protect\numberline{}\listtablename}
+
+\pagenumbering{arabic}
+
+
+\input{chapters/1-Litterature_study}
+% \input{Chapters/04Background}
+% \input{Chapters/06Method}
+% \input{Chapters/07Results}
+% \input{Chapters/08Discussion}
+% \input{Chapters/09Conclusion}
+
+
+\addcontentsline{toc}{chapter}
+{\protect\numberline{}Bibliography}
+\chapter*{\bibname}
+\printbibliography[heading=none]
+\cleardoublepage
+
+% \input{Chapters/10Appendix}
+
+\end{document}

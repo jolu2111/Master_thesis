@@ -1,0 +1,7 @@
+{"rule":"COMMA_PARENTHESIS_WHITESPACE","sentence":"^\\Q.[] .\\E$"}
+{"rule":"COMMA_PARENTHESIS_WHITESPACE","sentence":"^\\Q[display] .\\E$"}
+{"rule":"COMMA_PARENTHESIS_WHITESPACE","sentence":"^\\QSolving Laplace's equation with Physics-Informed Neural Networks .\\E$"}
+{"rule":"UPPERCASE_SENTENCE_START","sentence":"^\\Qtoc.chapter.\\E$"}
+{"rule":"COMMA_PARENTHESIS_WHITESPACE","sentence":"^\\Q.\\E$"}
+{"rule":"SENTENCE_WHITESPACE","sentence":"^\\QBibliography.\\E$"}
+{"rule":"COMMA_PARENTHESIS_WHITESPACE","sentence":"^\\Q.[] .\\E$"}
