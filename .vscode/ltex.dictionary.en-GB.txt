@@ -1,4 +1,6 @@
+Tanh
 Joakim
 Lunde
 Depina
 PINNs
+L-BFGS

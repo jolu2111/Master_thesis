@@ -13,6 +13,31 @@
 For the forward problem, it is difficult to obtain analytical solutions for most of the
 models related to consolidation.
 
-Researchers have revealed that PINNs possess the following advantages compared with the conventional mesh-based numerical methods in tackling the forward problem. 
-First, PINNs is capable of solving the inverse problem with the only minor change of the code that is used in a forward problem (Liu and Wang, 2019). Secondly, neural network-based methods with mesh-free features can reduce the tedious work of mesh generation (Basir and Senocak, 2022). 
+Researchers have revealed that PINNs possess the following advantages compared with the conventional mesh-based numerical methods in tackling the forward problem.
+First, PINNs is capable of solving the inverse problem with the only minor change of the code that is used in a forward problem (Liu and Wang, 2019). Secondly, neural network-based methods with mesh-free features can reduce the tedious work of mesh generation (Basir and Senocak, 2022).
 Thirdly, PINNs can obtain remarkably accurate solutions and reliable parameter estimations with fewer data and average-quality data, to reduce the dependence on the need for large training datasets (Zhang et al., 2021). Fourthly, PINNs can produce results at any point in the domain once it has been trained (Basir and Senocak, 2022).
+
+Uses Tanh
+
+The values of wf and wb are commonly assumed to be 1 in the case that all the loss values are of the same order of magnitude. It should be noted that the choice of these two coefficients is still an open problem needing further investigations (Wang et al., 2021).
+
+We use the Adam combined with L-BFGS optimizers
+
+Furthermore, we employ a commonly used Glorot
+normal scheme (Glorot and Bengio, 2010) as the p
+
+To deal with the stochastic nature of the training
+procedure, we calculated the results as an average over 5 realizations as suggested by
+Kadeethum et al. (2020)
+
+Found that more with a lot of domain points, increasing the boundary points help, but not the other way around necessarily.- overfitting?
+
+It is clear from Figure 7a that the performance of
+PINNs is found to be optimal at learning rates of 10–2 and 10–3
+
+
+
+
+
+
+
