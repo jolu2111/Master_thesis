@@ -4,3 +4,6 @@ Lunde
 Depina
 PINNs
 L-BFGS
+PINN
+Terzaghi
+Eurocode

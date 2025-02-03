@@ -35,9 +35,104 @@ Found that more with a lot of domain points, increasing the boundary points help
 It is clear from Figure 7a that the performance of
 PINNs is found to be optimal at learning rates of 10–2 and 10–3
 
+\section{Probabilistic physics-informed neural network for seismic petrophysical inversion}
+
+\url{https://library.seg.org/doi/10.1190/geo2023-0214.1?utm_source=chatgpt.com}
+
+We propose a probabilistic physics-informed neural network (P-PINN) algorithm for seismic petrophysical inversion with the goal of estimating the most likely model of petrophysical properties, the unknown hyperparameters of the rock-physics model, and the uncertainty of the model predictions.
+
+
+\section{Machine Learning-Aided Monte Carlo Simulation and Subset Simulation}
+
+\url{https://journals.sagepub.com/doi/10.1177/03611981241248166?utm_source=chatgpt.com#body-ref-bibr14-03611981241248166}
+
+(...) geotechnical structure design and analysis are also affected by measurement uncertainty, statistical uncertainty, and transformation model uncertainty. These geotechnical uncertainties are not capable of being taken into account by conventional deterministic analytical methods. First of all, there are many different causes of uncertainty, including variations in soil characteristics, building techniques, and environmental factors (13).
+
+\section{Bayesian neural networks}
+
+\subsection{Simple idea}
+
+The difference between a normal neural network and a Bayesian neural network is that the latter has a distribution of weights, rather than a single value. This allows for the model to express uncertainty in the predictions.
+
+We have a KL term as well as the likelihood term in the loss function. The KL term is a measure of how much the posterior distribution differs from the prior distribution. The likelihood term is the negative log likelihood of the data given the weights. Posterior distribution, P(W|D), is the distribution of the weights given the data, and the prior distribution, P(W), is the distribution of the weights before seeing the data.
+
+\begin{equation}
+  P(W|D) = \frac{P(D|W)P(W)}{P(D)}
+\end{equation}
+
+We approximate \( P(W|D) \) with a Gaussian distribution, and the KL divergence describes the difference between this distribution and the posterior distribution.
+
+Another approach is to use Markov Chain Monte Carlo. Then we use a Monte Carlo instead of a simple distribution as replacement. Less efficient.
+
+\subsection{In Practice}
+
+Each weight have a distribution
+\( W \sim \mathcal{N}(\mu, \sigma^2) \)
+\newline
+Than compute the likelihood of
+
+\textbf{A numerical example:}
+
+NN(x;w,b) = w*x + b
+
+$x_1 = 1$, $y_1 = 1.8$
+$x_2 = 3$, $y_2 = 2.7$
+
+We have a Gaussian prior distribution of the weights, \( w = b = \mathcal{N}(0, 1^{2}) \)
+
+The data likelihood for a single data point is
+\begin{align}
+  p(y_i|w,b) & = \frac{1}{\sqrt{2\pi}\sigma} \exp\left(-\frac{1}{2\sigma^2}(y_i - \text{NN}(x_i;w,b))^2\right)
+\end{align}
+
+We use variational inference to approximate the posterior distribution. q(w,b) = q(w)q(b). We use a Gaussian distribution for each weight.
+
+\begin{align}
+  q(w) & = \mathcal{N}(\mu_w, \sigma_w^2) \\
+  q(b) & = \mathcal{N}(\mu_b, \sigma_b^2)
+\end{align}
+
+Evidence lower bound (ELBO) is the objective function we want to maximize. It is written as: $ELBO = E[\log p(D|w,b)] + \ln(p(w,b)) - \ln(q(w,b))$, where the KL divergence is the difference between the prior and the posterior: $KL(q(w,b)||p(w,b)) = -\ln(q(w,b)) + \ln(p(w,b))$. The prior is written as $p(w,b) = p(w)p(b)$.
+
+We fist sample from the prior distribution, then we compute the likelihood of the data given the weights, and then we compute the KL divergence between the prior and the posterior:
+
+The prior distribution is $w =b = \mathcal{N}(0,1^2)$.
+Let's say we draw w' = 0.37 and b' = -0.11 from the prior distribution. Then we compute the likelihood of the data given these weights:
+\\
+
+$ELBO = E[\log p(D|w',b')] + \ln(p(w',b')) - \ln(q(w',b'))$
+
+First term is the likelihood of the data given the weights. We have two data points, so we compute the log likelihood for each data point and sum them up:
+
+\begin{align}
+  \log p(D|w',b') & = \log p(y_1|w',b') + \log p(y_2|w',b')                                                                                   \\
+                  & = \log \left(\frac{1}{\sqrt{2\pi}\sigma} \exp\left(-\frac{1}{2\sigma^2}(y_1 - \text{NN}(x_1;w',b'))^2\right)\right)       \\
+                  & \quad + \log \left(\frac{1}{\sqrt{2\pi}\sigma} \exp\left(-\frac{1}{2\sigma^2}(y_2 - \text{NN}(x_2;w',b'))^2\right)\right)
+\end{align}
+
+Numerically, if we assume that the observation noise is gaussian with a standard deviation of 0.2, we get:
+
+\begin{align}
+  \log p(D|w',b') & = \log \left(\frac{1}{\sqrt{2\pi} \cdot 0.2} \exp\left(-\frac{1}{2 \cdot 0.2^2}(1.8 - \text{NN}(1;0.37,-0.11))^2\right)\right)       \\
+                  & \quad + \log \left(\frac{1}{\sqrt{2\pi} \cdot 0.2} \exp\left(-\frac{1}{2 \cdot 0.2^2}(2.7 - \text{NN}(3;0.37,-0.11))^2\right)\right)
+\end{align}
+
+When computed numerically, we get log likelihood = -64,38.
+
+Next term is the log prior, $\ln(p(w',b')) = \ln(p(w')) + \ln(p(b')) = \ln\left(\frac{1}{2\pi} e^{-\frac{0.37^2}{2}}\right) + \ln\left(\frac{1}{2\pi} e^{-\frac{0.11^2}{2}}\right)$
+
+This becomes -0.988 - 0.926 = -1.914.
+
+The last term is the log of the variational distribution, $\ln(q(w',b')) = \ln(q(w')) + \ln(q(b')) = \ln\left(\frac{1}{2\pi} e^{-\frac{\mu_w^2}{2\sigma_w^2}}\right) + \ln\left(\frac{1}{2\pi} e^{-\frac{\mu_b^2}{2\sigma_b^2}}\right)$
 
 
 
 
+\section{Weight Uncertainty in Neural Networks}
+\url{https://arxiv.org/pdf/1505.05424}
 
+Bayes by Backprop is just a type of inference method.
 
+An alternative to the variational inference is to use Markov Chain Monte Carlo (MCMC) methods. This is less efficient, but more accurate. 
+VI: Faster, good for large-scale problems, but can suffer from approximation bias due to the factorized assumption.
+MCMC: More “accurate” in theory, but can be computationally heavy and slow to converge.
