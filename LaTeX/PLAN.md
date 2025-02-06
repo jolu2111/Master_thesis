@@ -51,7 +51,7 @@
 
 - I have read about BNN, but does not understand where they come into play if a PINN were to be used for a MC analysis. They are able to tell you the uncertainty of the model itself, but not the probability of something like SLS failure.
 
-  - Is it that the BNN will say something about the models' uncertainty for ONE calculation, and the PINN will be able to calculate the problems probability distribution?
+  - Is it that the BNN will say something about the models' uncertainty for ONE calculation, and the PINN will be able to calculate the problems' probability distribution?
 
 <!-- - Should I focus on how a presumably well-trained PINN can be utilized for probabilistic design, and ignore the accuracy of the PINN itself, or should I also/ rather focus on the performance of the PINN or NN. Ref https://arxiv.org/pdf/2501.16371 that talks about what optimizers work the best.
 
