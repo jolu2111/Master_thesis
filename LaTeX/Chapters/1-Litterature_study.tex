@@ -133,6 +133,13 @@ The last term is the log of the variational distribution, $\ln(q(w',b')) = \ln(q
 
 Bayes by Backprop is just a type of inference method.
 
+"In general, exact Bayesian inference on the weights of a neural network is intractable as the number of parameters is very large and the functional form of a neural network does not lend itself to exact integration."
+\\
+In BNN, we write p(y|x,w) as the likelihood instead of the general p(D|W). 
+
+
+\section{from chatGPT}
+
 An alternative to the variational inference is to use Markov Chain Monte Carlo (MCMC) methods. This is less efficient, but more accurate. 
 VI: Faster, good for large-scale problems, but can suffer from approximation bias due to the factorized assumption.
 MCMC: More “accurate” in theory, but can be computationally heavy and slow to converge.
