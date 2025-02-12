@@ -143,3 +143,10 @@ In BNN, we write p(y|x,w) as the likelihood instead of the general p(D|W).
 An alternative to the variational inference is to use Markov Chain Monte Carlo (MCMC) methods. This is less efficient, but more accurate. 
 VI: Faster, good for large-scale problems, but can suffer from approximation bias due to the factorized assumption.
 MCMC: More “accurate” in theory, but can be computationally heavy and slow to converge.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.8\textwidth]{figures/analogy_chatGPT.png}
+  \caption{An analogy of \( p(D)=\int p(D \mid w)p(w)dw \) explained by ChatGPT.}
+  \label{fig:analogy_chatGPT}
+\end{figure}
