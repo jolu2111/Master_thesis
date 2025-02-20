@@ -1,4 +1,10 @@
-\documentclass[a4paper, 12pt,oneside]{book}
+\documentclass[a4paper, 12pt,twoside,fleqn]{book}
+
+% \setlength{\parindent}{0pt}     % no paragraph indentation
+% \setlength{\parskip}{1em}       % large skip between paragraphs
+
+\usepackage{fancyhdr}
+\fancyhead{\nouppercase}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage[top=0.9in]{geometry}
@@ -8,8 +14,6 @@
   {1ex}
   {}%}\vspace{1ex}\filleft}
   [\vspace{1ex}\titlerule]
-\usepackage{fancyhdr}
-\fancyhead{\nouppercase}
 \setcounter{tocdepth}{2}
 \setcounter{secnumdepth}{4}
 \usepackage{url}
@@ -23,10 +27,33 @@
 \usepackage[export]{adjustbox}
 \usepackage{subfig}
 \usepackage{chngcntr}
-\counterwithin{figure}{section}
-\counterwithin{table}{section}
+\counterwithin{figure}{chapter}
+\counterwithin{table}{chapter}
 \usepackage{color, xcolor}
 \usepackage{hyperref}
+
+%%%%%
+\usepackage{tabularx}
+\usepackage{longtable}
+\usepackage{minted} % For syntaksutheving
+\usepackage{colortbl}
+\definecolor{lightgray}{gray}{0.9}
+\usepackage{comment}
+\usepackage{afterpage}
+\usepackage[version=4]{mhchem}
+\usepackage{pdfpages}
+\usepackage{subcaption} % For subfigure-miljøet
+\usepackage{tcolorbox} % Pakke for bokser
+\usepackage{xcolor} % Pakke for farger
+\definecolor{darkgray}{RGB}{50,50,50} % Juster tallene for ønsket mørkegrad
+\usepackage{textcomp}
+\usepackage{setspace}
+
+\usepackage[toc]{glossaries} % For å lage akronymer
+\makeglossaries % For å lage akronymer 
+\input{glossary} % For å lage akronymer
+
+%%%%%%%
 
 \usepackage{ulem}
 \hypersetup{
@@ -46,7 +73,11 @@
 \usepackage{afterpage}
 \usepackage[version=4]{mhchem}
 
+\usepackage{lmodern} % Latin Modern font
+
 \begin{document}
+
+% \setlength{\mathindent}{70pt}  % Sets the indentation for equations
 
 \begin{titlepage}
   \vspace*{1.5cm}
@@ -55,13 +86,14 @@
   \vspace{1cm}
 
   \noindent \textbf{\LARGE Solving Laplace's equation with\\ Physics-Informed Neural Networks \\}
-  \vspace{1cm}
 
-  \noindent TBM4500 - Geotechnics, Project Thesis \\
+  \vfill  % <-- Automatically pushes the next content to the bottom of the page
+
+  \noindent TBM4900 - Civil and Environmental Engineering, Master's Thesis \\
   Supervisor: Ivan Depina \\
-  December 2024 \\
+  June 2025 \\
 
-  \vspace{9cm}
+  \vspace{0.8cm}
   \noindent
   Norwegian University of Science and Technology \\
   Faculty of Engineering Science \\
@@ -72,33 +104,38 @@
     \includegraphics[width=0.28\textwidth]{Figures/ntnu_basic.png}
   \end{figure}
 \end{titlepage}
-
+% Roman page numbering for front matter
 \pagenumbering{roman}
 
+% Front matter sections
+\input{Chapters/00-Preface}
 \input{chapters/0a-abstract.tex}
 \input{chapters/0b-sammendrag.tex}
 
-
+% Table of contents and lists
 \tableofcontents
-\addcontentsline{toc}{chapter}{\protect\numberline{}Contents}
-
+\addcontentsline{toc}{chapter}{Contents}
 
 \listoffigures
-\addcontentsline{toc}{chapter}{\protect\numberline{}\listfigurename}
+\addcontentsline{toc}{chapter}{List of Figures}
 
 \listoftables
-\addcontentsline{toc}{chapter}{\protect\numberline{}\listtablename}
+\addcontentsline{toc}{chapter}{List of Tables}
 
+\printglossary[title=Glossary, toctitle=Glossary]
+
+
+% Arabic numbering starts here (AFTER front matter, BEFORE introduction)
+\cleardoublepage
 \pagenumbering{arabic}
-
-
-\input{chapters/1-Litterature_study}
+ 
+\input{Chapters/1-Introduction}
+\input{chapters/11-Litterature_study}
 % \input{Chapters/04Background}
 % \input{Chapters/06Method}
 % \input{Chapters/07Results}
 % \input{Chapters/08Discussion}
 % \input{Chapters/09Conclusion}
-
 
 \addcontentsline{toc}{chapter}
 {\protect\numberline{}Bibliography}
