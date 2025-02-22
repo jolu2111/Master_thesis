@@ -68,6 +68,8 @@ This will give the function pi(x).
 
   - Is it that the BNN will say something about the models' uncertainty for ONE calculation, and the PINN will be able to calculate the problems' probability distribution?
 
+- How should I organize my thesis - first talk about uncertainty quantification and then talk about PINNs, or should I do it all in one go. 
+
 <!-- - Should I focus on how a presumably well-trained PINN can be utilized for probabilistic design, and ignore the accuracy of the PINN itself, or should I also/ rather focus on the performance of the PINN or NN. Ref https://arxiv.org/pdf/2501.16371 that talks about what optimizers work the best.
 
     - Concentrate on the usage first, not a good model

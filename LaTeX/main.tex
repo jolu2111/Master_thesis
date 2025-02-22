@@ -69,6 +69,24 @@
             style = authoryear,
             maxcitenames = 2]{biblatex}
 \addbibresource{thesis.bib}
+
+\defbibenvironment{bibliography}
+  {\list
+     {\printfield[labelnumberwidth]{labelnumber}}
+     {\setlength{\labelwidth}{0pt}%
+      \setlength{\leftmargin}{1em} % Indent every entry
+      \setlength{\itemindent}{-1em} % Align first line with the indent
+      \setlength{\labelsep}{\biblabelsep}%
+      \setlength{\itemsep}{1em} % Space between items
+      \setlength{\parsep}{\bibparsep}
+      \raggedright % Prevents right-justification overflow
+      \sloppy % Allows more flexible line breaking
+      \emergencystretch=2em}} % Extra stretch to avoid overfull lines
+  {\endlist}
+  {\item}
+
+
+
 \usepackage{comment}
 \usepackage{afterpage}
 \usepackage[version=4]{mhchem}
@@ -138,10 +156,10 @@
 \input{Chapters/5-Discussion}
 \input{Chapters/6-Conclusion}
 
-\addcontentsline{toc}{chapter}
-{\protect\numberline{}Bibliography}
+
 \chapter*{\bibname}
 \printbibliography[heading=none]
+\addcontentsline{toc}{chapter}{Bibliography}
 \cleardoublepage
 
 % \input{Chapters/10Appendix}
