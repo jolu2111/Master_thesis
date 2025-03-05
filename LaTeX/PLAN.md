@@ -14,7 +14,7 @@ This will give the function pi(x).
 
 5. Final probability of failure is then α<sub>corr</sub> * Pf_e
 
-# 
+<!-- # 
 1. Find a problem that is related to probabilistic design in Geotechnics.
 
 - Toy problem that are very simple
@@ -27,28 +27,22 @@ This will give the function pi(x).
 
 - This could be ultimate limit state (ULS) or some kind of serviceability limit state (SLS)
 
-4. Finally use this distribution for a probabilistic design rather than Eurocode.
+4. Finally use this distribution for a probabilistic design rather than Eurocode. -->
 
 ## Short term plan
 
-1. Read about Bayesian neural networks.
-
-   - Bayesian approach and probabilistic models.
-
-2. Read on UQ_something - uncertainty quantification?
+1. Read on UQ_something - uncertainty quantification?
 
 3. Read on Pyro - how to use it in probabilistic modelling
 
-### Concrete Plans
-
-1. Watch the "Probabilistic AI school" at youtube
+<!-- ### Concrete Plans
 
 2. Read the following papers in this order:
 
 - https://arxiv.org/pdf/1505.05424
 - https://www.sciencedirect.com/science/article/pii/S0021999120306872
 - Pyro tutorials
-- Look into Lower-level resources on Markov Chain Monte Carlo (MCMC), variational inference, and relevant Bayesian methods. These are crucial if you want to fully grasp the training loop behind B-PINNs.
+- Look into Lower-level resources on Markov Chain Monte Carlo (MCMC), variational inference, and relevant Bayesian methods. These are crucial if you want to fully grasp the training loop behind B-PINNs. -->
 
 3.
 
@@ -61,6 +55,12 @@ This will give the function pi(x).
 - Use DeepXDE library when possible when dealing with difficult geometries.
 
 - Soil property characterization is an area BNN could work.
+
+- Make a PINN with MC dropout witgh both:
+  - Input drawn from a PDF during training 
+  - Input stationary - drawn from a PDF during training 
+- Make an ipynb of Impoprtance sampling 
+- Make a PINN with 
 
 # Questions
 
