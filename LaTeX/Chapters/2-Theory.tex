@@ -1,4 +1,9 @@
 \chapter{Theoretical Framework}
 \label{ch:theory}
 
-Tester gastigheten på skrivingemn
+1. Why Monte Carlo Can Struggle With Rare Events
+When you draw samples from the original (or “nominal”) distribution—e.g., 
+$N(\mu, \sigma^2)$ for each parameter—the probability of seeing “extreme” samples that cause failure (like crossing 
+$y < -1$) may be very small. Hence, most samples do not contribute to the failure count, and the probability estimate can have a high variance (you need a huge number of samples to accurately capture rare failures).
+
+Importance Sampling (IS) addresses this by sampling from a modified distribution that focuses on the region more likely to produce failure (i.e., “importance region”). Then each sample is re-weighted to maintain an unbiased estimate of the true probability.
