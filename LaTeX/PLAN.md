@@ -30,10 +30,15 @@ This will give the function pi(x).
 4. Finally use this distribution for a probabilistic design rather than Eurocode. -->
 
 ## Short term plan
+0. Implement adaptive sampling to failure points (MPP)
 
 1. Read on UQ_something - uncertainty quantification?
 
-3. Read on Pyro - how to use it in probabilistic modelling
+2. Implement normilzation of the input to see if that helps. Look at chat gpt answer of 10.03. 
+
+3. Fix the paramtererized PINN so it is only one class- as in the github code 
+
+
 
 <!-- ### Concrete Plans
 
@@ -64,16 +69,17 @@ This will give the function pi(x).
 
 # Questions
 
-- I have read about BNN, but does not understand where they come into play if a PINN were to be used for a MC analysis. They are able to tell you the uncertainty of the model itself, but not the probability of something like SLS failure.
+- For parameterized PINN: are y0 and v0 spatiotemporal coordinate (x, t) or PDE parameters µ with hparam = gθp(µ)?
 
-  - Is it that the BNN will say something about the models' uncertainty for ONE calculation, and the PINN will be able to calculate the problems' probability distribution?
+- How do I get IS to work when I do not have a symmetrical distribution? 
 
 - How should I organize my thesis - first talk about uncertainty quantification and then talk about PINNs, or should I do it all in one go. 
 
 <!-- - Should I focus on how a presumably well-trained PINN can be utilized for probabilistic design, and ignore the accuracy of the PINN itself, or should I also/ rather focus on the performance of the PINN or NN. Ref https://arxiv.org/pdf/2501.16371 that talks about what optimizers work the best.
 
     - Concentrate on the usage first, not a good model
+-->
 
-- PINNs are hard to use for nonlinear problems such as for plastic behaviour of soil in a slope analysis. Should I stick to linear systems like a linear elastic? What type of problems should I look into?
+<!-- - PINNs are hard to use for nonlinear problems such as for plastic behaviour of soil in a slope analysis. Should I stick to linear systems like a linear elastic? What type of problems should I look into?
 
-    - It is not possible with PINNs to do a nonlinear analysis, but I can search up elasto plastic PINN if I want to. Probably to difficult for now.  -->
+    - It is not possible with PINNs to do a nonlinear analysis, but I can search up elasto plastic PINN if I want to. Probably too difficult for now.  -->
