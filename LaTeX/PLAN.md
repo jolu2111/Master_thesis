@@ -59,13 +59,19 @@ This will give the function pi(x).
 
 - Use DeepXDE library when possible when dealing with difficult geometries.
 
-- Soil property characterization is an area BNN could work.
+- Make a PINN that samples new points every so ans so iteration and compare the result with one that does not 
+- Make three different approaches of finding the MPP 
+  - FORM
+  - LBFGS or Adam
+  - Simple MC scan to find points
+- Sample new points:
+  - 
+  
+- OR sample points directly without going through the MPP: 
+  - Subset simulation 
+  - 
 
-- Make a PINN with MC dropout witgh both:
-  - Input drawn from a PDF during training 
-  - Input stationary - drawn from a PDF during training 
-- Make an ipynb of Impoprtance sampling 
-- Make a PINN with 
+- Make this BC correct scheme where you make the output so that BC is automatically satisfied. 
 
 # Questions
 
