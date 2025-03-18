@@ -72,6 +72,9 @@ This will give the function pi(x).
   - 
 
 - Make this BC correct scheme where you make the output so that BC is automatically satisfied. 
+- Save the model with the lowest loss value through training, so that when new epochs hit lower it is substituted, but if they are higher, it not overwritten. 
+OR "After 5000 iterations the lowest loss is recorded, and the iterations are stopped when the loss is less than the recorded loss. This
+new stopping criterion ensures a final network with parameters corresponding to the lowest loss in the entire training process"
 
 # Questions
 
