@@ -76,6 +76,8 @@ This will give the function pi(x).
 OR "After 5000 iterations the lowest loss is recorded, and the iterations are stopped when the loss is less than the recorded loss. This
 new stopping criterion ensures a final network with parameters corresponding to the lowest loss in the entire training process"
 
+- Problem is that if you focus training on one part of the paramters, the ones left out gets very bad very quickly. Should in other words not disregard other areas completely.
+
 # Questions
 
 - For parameterized PINN: are y0 and v0 spatiotemporal coordinate (x, t) or PDE parameters µ with hparam = gθp(µ)?
