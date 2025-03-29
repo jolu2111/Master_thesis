@@ -30,15 +30,29 @@ This will give the function pi(x).
 4. Finally use this distribution for a probabilistic design rather than Eurocode. -->
 
 ## Short term plan
-0. Implement adaptive sampling to failure points (MPP)
 
-1. Read on UQ_something - uncertainty quantification?
+1. Implement normalization of the input to see if that helps. Look at chat GPT answer of 10.03.
 
-2. Implement normilzation of the input to see if that helps. Look at chat gpt answer of 10.03. 
+2. Fix the parameterized PINN so it is only one class - as in the GitHub code.
 
-3. Fix the paramtererized PINN so it is only one class- as in the github code 
+3. FORM - implementation of the code.
+  - SORM if time.
 
+4. Find and use the CoV - coefficient of variation.
 
+5. Have a look at the metamodel-based sampling again and see if I can implement some of it.
+
+6. Review what Ivan has uploaded to Teams.
+
+7. Read adaptive IS from Ivan.
+
+8. Go through the code and minimize the amount of hyperparameters that must be chosen.
+
+9. Find some improvement in the way the new points are chosen (e.g., clustering).
+
+10. Find some improvement in the way the new points are used (e.g., partial substitution).
+
+11. Read on UQ (uncertainty quantification) to deepen understanding.
 
 <!-- ### Concrete Plans
 
