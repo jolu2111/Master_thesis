@@ -52,6 +52,8 @@ This will give the function pi(x).
 
 10. Find some improvement in the way the new points are used (e.g., partial substitution).
 
+11. Implement PINN-FORM as in the paper, where the FORM is done inside the PINN as inverse calculation. 
+
 11. Read on UQ (uncertainty quantification) to deepen understanding.
 
 <!-- ### Concrete Plans
