@@ -1,7 +1,7 @@
 from utils import z_score_normalize
 import torch
 
-def make_input_params(t_test, values, norm_info=None, requires_grad=False):
+def make_input_params(t_test, values, norm_info=None):
     ''' 
     Makes test parameters for input to the PINN model.
     
@@ -23,10 +23,10 @@ def make_input_params(t_test, values, norm_info=None, requires_grad=False):
         values[3] = z_score_normalize(values[3], norm_info['y0']) if 'y0' in norm_info else values[3]
         values[4] = z_score_normalize(values[4], norm_info['v0']) if 'v0' in norm_info else values[4]
 
-    m = torch.tensor([values[0]] * len(t_test), dtype=torch.float32).view(-1, 1).requires_grad_(requires_grad)
-    mu = torch.tensor([values[1]] * len(t_test), dtype=torch.float32).view(-1, 1).requires_grad_(requires_grad)
-    k = torch.tensor([values[2]] * len(t_test), dtype=torch.float32).view(-1, 1).requires_grad_(requires_grad)
-    y0 = torch.tensor([values[3]] * len(t_test), dtype=torch.float32).view(-1, 1).requires_grad_(requires_grad)
-    v0 = torch.tensor([values[4]] * len(t_test), dtype=torch.float32).view(-1, 1).requires_grad_(requires_grad)
+    m = torch.tensor([values[0]] * len(t_test), dtype=torch.float32).view(-1, 1)
+    mu = torch.tensor([values[1]] * len(t_test), dtype=torch.float32).view(-1, 1)
+    k = torch.tensor([values[2]] * len(t_test), dtype=torch.float32).view(-1, 1)
+    y0 = torch.tensor([values[3]] * len(t_test), dtype=torch.float32).view(-1, 1)
+    v0 = torch.tensor([values[4]] * len(t_test), dtype=torch.float32).view(-1, 1)
 
     return m, mu, k, y0, v0
