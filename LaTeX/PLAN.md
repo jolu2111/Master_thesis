@@ -31,7 +31,7 @@ This will give the function pi(x).
 
 ## Short term plan
 
-1. Implement normalization of the input to see if that helps. Look at chat GPT answer of 10.03.
+1. DONE Implement normalization of the input to see if that helps. Look at chat GPT answer of 10.03.
 
 2. Fix the parameterized PINN so it is only one class - as in the GitHub code.
 

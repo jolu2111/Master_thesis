@@ -102,7 +102,7 @@ def initialize_param(N, distribute=None, specs=None, normalize=False):
     if normalize:
         params['norm_info'] = norm_info
     else:
-        params['norm_info'] = None
+        params['norm_info'] = {}
     # Define a single time for the boundary condition (same shape as t_coll)
     t0 = torch.zeros_like(t_coll).clone().detach().requires_grad_(True)
     params['t0'] = t0
