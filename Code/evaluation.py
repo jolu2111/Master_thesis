@@ -31,7 +31,7 @@ def make_input_params(t_test, values, norm_info=None):
 
     return m, mu, k, y0, v0
 
-def limit_state_function_G(model, t, pred_params,differentiable=False, gamma=1000.0,):
+def limit_state_function_G(model, t, pred_params, differentiable=False, gamma=1000.0,):
     """
     t is a numpy array of collocation points.
     values is a list of physical parameters [m, mu, k, y0, v0] as torch tensors (requires_grad=True for the distributed ones).
