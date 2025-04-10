@@ -71,36 +71,29 @@ This will give the function pi(x).
 
 # Thoughts
 
-- Have an overview of other machine learning models that can be used, when let's say you have data. This could be long short-term memory neural networks. The problem with this is that you need labelled data from field investigations, I don't have that.
-
-- Use DeepXDE library when possible when dealing with difficult geometries.
 
 - Make a PINN that samples new points every so ans so iteration and compare the result with one that does not 
 - Make three different approaches of finding the MPP 
   - FORM
   - LBFGS or Adam
   - Simple MC scan to find points
-- Sample new points:
-  - 
   
 - OR sample points directly without going through the MPP: 
   - Subset simulation 
   - 
 
-- Make this BC correct scheme where you make the output so that BC is automatically satisfied. 
-- Save the model with the lowest loss value through training, so that when new epochs hit lower it is substituted, but if they are higher, it not overwritten. 
-OR "After 5000 iterations the lowest loss is recorded, and the iterations are stopped when the loss is less than the recorded loss. This
-new stopping criterion ensures a final network with parameters corresponding to the lowest loss in the entire training process"
-
 - Problem is that if you focus training on one part of the paramters, the ones left out gets very bad very quickly. Should in other words not disregard other areas completely.
+
+
 
 # Questions
 
 - For parameterized PINN: are y0 and v0 spatiotemporal coordinate (x, t) or PDE parameters µ with hparam = gθp(µ)?
 
-- How do I get IS to work when I do not have a symmetrical distribution? 
 
 - How should I organize my thesis - first talk about uncertainty quantification and then talk about PINNs, or should I do it all in one go. 
+
+- FORM requires PINN to be accurate for a lot more of the paramterspace then crude monte carlo, since it works by using the derivatives, and that is my initial thought. Or am I wrong? 
 
 <!-- - Should I focus on how a presumably well-trained PINN can be utilized for probabilistic design, and ignore the accuracy of the PINN itself, or should I also/ rather focus on the performance of the PINN or NN. Ref https://arxiv.org/pdf/2501.16371 that talks about what optimizers work the best.
 
