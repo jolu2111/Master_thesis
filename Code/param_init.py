@@ -44,36 +44,43 @@ def initialize_param(N, distribute=None, specs=None, normalize=False):
     >>> params = initialize_param(N=100, distribute=['m', 'mu'], specs=specs, normalize=True)
     
     """
-    # Create time collocation points
-    t_coll = torch.rand(N, 1) * 5
-    t_coll.requires_grad_(True)
-    
     # Define default specifications for parameters if specs is not provided.
     default_specs = {
+        't': {'range': 5.0},
         'm':  {'mean': 1.0,  'std': 0.1, 'lower_multiplier': -5, 'upper_multiplier': 5},
         'mu': {'mean': 0.6,  'std': 0.05, 'lower_multiplier': -5, 'upper_multiplier': 5},
         'k':  {'mean': 5.0,  'std': 0.5, 'lower_multiplier': -5, 'upper_multiplier': 5},
         'y0': {'mean': -0.4, 'std': 0.1, 'lower_multiplier': -5, 'upper_multiplier': 5},
         'v0': {'mean': 3.0,  'std': 0.5, 'lower_multiplier': -5, 'upper_multiplier': 5},
     }
-    
+
     if specs is None:
         specs = default_specs
     else:
-        # Fill in any missing parameter specs with the defaults.
+    # Fill in any missing parameter specs with the defaults.
         for key, val in default_specs.items():
             if key not in specs:
                 specs[key] = val
     
+    # Create time collocation points
+    if normalize: # If normalization is used, the time collocation points should be normalized as well.
+        t_coll = torch.rand(N, 1)
+        t_coll.requires_grad_(True)
+    else:
+        t_coll = torch.rand(N, 1)*specs['t']['range']
+        t_coll.requires_grad_(True)
+
+    # Initialize the output dictionary with the time collocation points.
+    params = {'t_coll': t_coll}
+    
     # If distribute is not provided, assume no parameter is distributed.
     if distribute is None:
         distribute = []
-    
-    # Initialize the output dictionary with the time collocation points.
-    params = {'t_coll': t_coll}
 
     # Also prepare a normalization info dictionary if normalization is used.
     norm_info = {}
+    if normalize:
+        norm_info['t'] = specs['t']
     
     # For each parameter, either sample uniformly (if distributed) or use a constant value.
     for param in ['m', 'mu', 'k', 'y0', 'v0']:
@@ -85,7 +92,7 @@ def initialize_param(N, distribute=None, specs=None, normalize=False):
         
         if param in distribute:
             # Sample uniformly for distributed parameters.
-            tensor = torch.FloatTensor(N, 1).uniform_(lower, upper)
+            tensor = torch.FloatTensor(N, 1).uniform_(lower, upper) 
             if normalize:
                 # Apply Z-score normalization
                 tensor = z_score_normalize_simple(tensor, mean, std)

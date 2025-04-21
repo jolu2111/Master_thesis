@@ -90,10 +90,12 @@ This will give the function pi(x).
 
 - For parameterized PINN: are y0 and v0 spatiotemporal coordinate (x, t) or PDE parameters µ with hparam = gθp(µ)?
 
-
 - How should I organize my thesis - first talk about uncertainty quantification and then talk about PINNs, or should I do it all in one go. 
 
 - FORM requires PINN to be accurate for a lot more of the paramterspace then crude monte carlo, since it works by using the derivatives, and that is my initial thought. Or am I wrong? 
+  - ANSWER, yes, but you can have a second algorithm that walks along the g(0) line and tryes to get the distance shorter. 
+
+- Should time also be a part of the LHS? I am currently first having t and params randomnlt distributed, and the adaptive scheme is improving the choise of params, but the time is still randomly chosen. 
 
 <!-- - Should I focus on how a presumably well-trained PINN can be utilized for probabilistic design, and ignore the accuracy of the PINN itself, or should I also/ rather focus on the performance of the PINN or NN. Ref https://arxiv.org/pdf/2501.16371 that talks about what optimizers work the best.
 

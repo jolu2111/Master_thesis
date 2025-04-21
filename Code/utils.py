@@ -56,15 +56,22 @@ def z_score_normalize(x, norm_info_param):
 def pde_loss(model, t, m, mu, k, y0_val, v0_val, norm_info=None):
     # First, compute the model output using the (normalized) inputs.
     y = model(t, m, mu, k, y0_val, v0_val)
-    y_t = torch.autograd.grad(y, t, grad_outputs=torch.ones_like(y), create_graph=True)[0]
-    y_tt = torch.autograd.grad(y_t, t, grad_outputs=torch.ones_like(y_t), create_graph=True)[0]
+    y_t_norm = torch.autograd.grad(y, t, grad_outputs=torch.ones_like(y), create_graph=True)[0]
+    y_tt_norm = torch.autograd.grad(y_t_norm, t, grad_outputs=torch.ones_like(y_t_norm), create_graph=True)[0]
 
     # If norm_info is provided, denormalize the parameters for the PDE residual.
     if norm_info is not None:
+        dt_dt_hat = norm_info['t']['range'] #Scaling the time collocation points to the physical time range using chain rule.
+        y_t = y_t_norm / dt_dt_hat
+        y_tt = y_tt_norm / (dt_dt_hat**2)
+
         m_phys = z_score_denormalize(m, norm_info['m']) if 'm' in norm_info else m.detach()
         mu_phys = z_score_denormalize(mu, norm_info['mu']) if 'mu' in norm_info else mu.detach()
         k_phys = z_score_denormalize(k, norm_info['k']) if 'k' in norm_info else k.detach()
     else:
+        y_t = y_t_norm
+        y_tt = y_tt_norm
+
         m_phys = m
         mu_phys = mu
         k_phys = k
@@ -77,12 +84,15 @@ def pde_loss(model, t, m, mu, k, y0_val, v0_val, norm_info=None):
 # Compute boundary loss
 def boundary_loss(model, t0, m, mu, k, y0, v0,norm_info=None):
     y_pred = model(t0, m, mu, k, y0, v0)
-    y_t = torch.autograd.grad(y_pred, t0, grad_outputs=torch.ones_like(y_pred), create_graph=True)[0]
+    y_t_norm = torch.autograd.grad(y_pred, t0, grad_outputs=torch.ones_like(y_pred), create_graph=True)[0]
 
     if norm_info is not None:
+        dt_dt_hat = norm_info['t']['range'] #Scaling the time collocation points to the physical time range using chain rule.
+        y_t = y_t_norm / dt_dt_hat
         y0_phys = z_score_denormalize(y0, norm_info['y0']) if 'y0' in norm_info else y0.detach()
         v0_phys = z_score_denormalize(v0, norm_info['v0']) if 'v0' in norm_info else v0.detach()
     else:
+        y_t = y_t_norm
         y0_phys = y0
         v0_phys = v0
     # Compute the boundary loss using physical parameters.
@@ -101,12 +111,12 @@ def plot_loss(epoch, losses_dict):
 
 # Trainer class to manage training process
 class Trainer:
-    def __init__(self, model, optimizer, epochs=4001):
+    def __init__(self, model, optimizer, epochs=4001, lambda_bc=10.0):
         self.model = model
         self.optimizer = optimizer
         self.epochs = epochs
         self.losses = {"Residual Loss": [], "Boundary Loss": []}
-        self.lambda_bc = 10.0
+        self.lambda_bc = lambda_bc
 
     def train(self, *args):
         # Allow passing a single dictionary argument, or individual tensors.
