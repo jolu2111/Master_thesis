@@ -4,10 +4,6 @@ def z_score_normalize_simple(x, mean, std):
     """Applies Z-score normalization."""
     return (x - mean) / std
 
-# def z_score_denormalize(x, mean, std):
-#     """Denormalizes the Z-score normalized data."""
-#     return x * std + mean
-
 def initialize_param(N, distribute=None, specs=None, normalize=False):
     """
     Initialize training parameters with options to distribute selected parameters.
@@ -44,7 +40,7 @@ def initialize_param(N, distribute=None, specs=None, normalize=False):
     >>> params = initialize_param(N=100, distribute=['m', 'mu'], specs=specs, normalize=True)
     
     """
-    # Define default specifications for parameters if specs is not provided.
+    ################# Define default specifications for parameters if specs is not provided. #######################
     default_specs = {
         't': {'range': 5.0},
         'm':  {'mean': 1.0,  'std': 0.1, 'lower_multiplier': -5, 'upper_multiplier': 5},
@@ -62,7 +58,7 @@ def initialize_param(N, distribute=None, specs=None, normalize=False):
             if key not in specs:
                 specs[key] = val
     
-    # Create time collocation points
+    ################### Create time collocation points ############################################################
     if normalize: # If normalization is used, the time collocation points should be normalized as well.
         t_coll = torch.rand(N, 1)
         t_coll.requires_grad_(True)
@@ -73,14 +69,19 @@ def initialize_param(N, distribute=None, specs=None, normalize=False):
     # Initialize the output dictionary with the time collocation points.
     params = {'t_coll': t_coll}
     
+    ############# Initialize parameters based on which to distribution and normalize ##############################
+
     # If distribute is not provided, assume no parameter is distributed.
     if distribute is None:
         distribute = []
 
     # Also prepare a normalization info dictionary if normalization is used.
-    norm_info = {}
+
     if normalize:
+        norm_info = {}
         norm_info['t'] = specs['t']
+            # Add normalization info and flag to the dictionary.
+        params['norm_info'] = norm_info
     
     # For each parameter, either sample uniformly (if distributed) or use a constant value.
     for param in ['m', 'mu', 'k', 'y0', 'v0']:
@@ -105,11 +106,6 @@ def initialize_param(N, distribute=None, specs=None, normalize=False):
             tensor = tensor.expand(N, -1)
         params[param] = tensor
 
-    # Add normalization info and flag to the dictionary.
-    if normalize:
-        params['norm_info'] = norm_info
-    else:
-        params['norm_info'] = {}
     # Define a single time for the boundary condition (same shape as t_coll)
     t0 = torch.zeros_like(t_coll).clone().detach().requires_grad_(True)
     params['t0'] = t0

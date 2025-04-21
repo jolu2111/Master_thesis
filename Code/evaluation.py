@@ -33,15 +33,13 @@ def make_input_params(t_test, values, norm_info=None):
 
 def limit_state_function_G(model, t, pred_params, differentiable=False, gamma=1000.0,):
     """
-    t is a numpy array of collocation points.
-    values is a list of physical parameters [m, mu, k, y0, v0] as torch tensors (requires_grad=True for the distributed ones).
-    norm_info is a dictionary with the normalization information.
+    t is a torch array of collocation points.
 
     Returns:
     g(x) = soft_min(predicted_y) + 1.0  (as a torch tensor)
     """
     # Evaluate the network
-    y_pred = model(torch.from_numpy(t).float().view(-1, 1), *pred_params)
+    y_pred = model(t, *pred_params)
     
     if differentiable:
         # Compute a smooth approximation to the minimum of y_pred. Differentiable w.r.t. y_pred.

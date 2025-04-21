@@ -80,7 +80,6 @@ def pde_loss(model, t, m, mu, k, y0_val, v0_val, norm_info=None):
     residual = m_phys * y_tt + mu_phys * y_t + k_phys * y
     return torch.mean(residual**2)
 
-
 # Compute boundary loss
 def boundary_loss(model, t0, m, mu, k, y0, v0,norm_info=None):
     y_pred = model(t0, m, mu, k, y0, v0)
