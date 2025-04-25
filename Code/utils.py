@@ -31,6 +31,43 @@ class PINN_vanilla_oscillator(nn.Module):
         x = torch.cat([t, m, mu, k, y0, v0], dim=1)
         return self.net(x)
 
+class P2INN_oscillator(nn.Module):
+    def __init__(self,
+                 param_hidden=32,
+                 coord_hidden=16,
+                 decoder_hidden=64):
+        super().__init__()
+        # PARAMETER ENCODER: 5→[32]→…
+        self.param_encoder = nn.Sequential(
+            nn.Linear(5, param_hidden), nn.Tanh(),
+            nn.Linear(param_hidden, param_hidden), nn.Tanh()
+        )
+
+        # COORDINATE ENCODER: 1→[16]→…
+        self.coord_encoder = nn.Sequential(
+            nn.Linear(1, coord_hidden), nn.Tanh(),
+            nn.Linear(coord_hidden, coord_hidden), nn.Tanh()
+        )
+
+        # DECODER: (32+16)=48→[64]→…→1
+        self.decoder = nn.Sequential(
+            nn.Linear(param_hidden + coord_hidden, decoder_hidden), nn.Tanh(),
+            nn.Linear(decoder_hidden, decoder_hidden), nn.Tanh(),
+            nn.Linear(decoder_hidden, 1)
+        )
+
+    def forward(self, t, m, mu, k, y0, v0):
+        # build the two inputs:
+        eq  = torch.cat([m, mu, k, y0, v0], dim=1)  # (batch,5)
+        tc  = t                                     # already (batch,1)
+
+        h_p = self.param_encoder(eq)               # (batch,32)
+        h_c = self.coord_encoder(tc)               # (batch,16)
+
+        h   = torch.cat([h_p, h_c], dim=1)         # (batch,48)
+        y   = self.decoder(h)                      # (batch,1)
+        return y
+
 def z_score_denormalize(x, norm_info_param):
     """
     Inverts a Z-score normalization.
@@ -63,7 +100,7 @@ def pde_loss(model, t, m, mu, k, y0_val, v0_val, norm_info=None):
     if norm_info is not None:
         dt_dt_hat = norm_info['t']['range'] #Scaling the time collocation points to the physical time range using chain rule.
         y_t = y_t_norm / dt_dt_hat
-        y_tt = y_tt_norm / (dt_dt_hat**2)
+        y_tt = y_tt_norm  / (dt_dt_hat**2)
 
         m_phys = z_score_denormalize(m, norm_info['m']) if 'm' in norm_info else m.detach()
         mu_phys = z_score_denormalize(mu, norm_info['mu']) if 'mu' in norm_info else mu.detach()

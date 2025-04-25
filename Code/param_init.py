@@ -58,13 +58,17 @@ def initialize_param(N, distribute=None, specs=None, normalize=False):
             if key not in specs:
                 specs[key] = val
     
-    ################### Create time collocation points ############################################################
+    ################## Create time collocation points ############################################################
     if normalize: # If normalization is used, the time collocation points should be normalized as well.
         t_coll = torch.rand(N, 1)
         t_coll.requires_grad_(True)
     else:
         t_coll = torch.rand(N, 1)*specs['t']['range']
         t_coll.requires_grad_(True)
+
+    # t_coll = torch.rand(N, 1)*specs['t']['range']
+    # t_coll.requires_grad_(True)
+
 
     # Initialize the output dictionary with the time collocation points.
     params = {'t_coll': t_coll}
@@ -80,8 +84,10 @@ def initialize_param(N, distribute=None, specs=None, normalize=False):
     if normalize:
         norm_info = {}
         norm_info['t'] = specs['t']
-            # Add normalization info and flag to the dictionary.
+        # Add normalization info and flag to the dictionary.
         params['norm_info'] = norm_info
+    else:
+        params['norm_info'] = None
     
     # For each parameter, either sample uniformly (if distributed) or use a constant value.
     for param in ['m', 'mu', 'k', 'y0', 'v0']:
@@ -94,7 +100,8 @@ def initialize_param(N, distribute=None, specs=None, normalize=False):
         if param in distribute:
             # Sample uniformly for distributed parameters.
             tensor = torch.FloatTensor(N, 1).uniform_(lower, upper) 
-            if normalize:
+            if normalize and param not in ('y0', 'v0'):                 # # Don't normalize y0 and v0, maybe it helps?
+            # if normalize:
                 # Apply Z-score normalization
                 tensor = z_score_normalize_simple(tensor, mean, std)
                 # Store normalization info for later inversion in the loss functions.
