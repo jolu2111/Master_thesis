@@ -100,7 +100,6 @@ def initialize_param(N, distribute=None, specs=None, normalize=False):
         if param in distribute:
             # Sample uniformly for distributed parameters.
             tensor = torch.FloatTensor(N, 1).uniform_(lower, upper) 
-            # if normalize and param not in ('y0', 'v0'):                 # # Don't normalize y0 and v0, maybe it helps?
             if normalize:
                 # Apply Z-score normalization
                 tensor = z_score_normalize_simple(tensor, mean, std)

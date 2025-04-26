@@ -84,6 +84,8 @@ This will give the function pi(x).
 
 - Problem is that if you focus training on one part of the paramters, the ones left out gets very bad very quickly. Should in other words not disregard other areas completely.
 
+- I can speed up the adaptive sampling massively if I only check for certain time points as in the training, rather then the whole time domain. 
+-   But then I cant find if it dips below -1.0, since I need the whole time series to find that. 
 
 
 # Questions
