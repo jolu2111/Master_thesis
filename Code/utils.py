@@ -67,6 +67,54 @@ class PINN_vanilla_oscillator(nn.Module):
         # reshape back to original (..., 1)
         return y_flat.view(*orig_shape)
 
+# class P2INN_oscillator(nn.Module):
+#     def __init__(self,
+#                  # parameter encoder settings
+#                  param_hidden: int = 32,
+#                  param_layers: int = 4,
+#                  # coordinate encoder settings
+#                  coord_hidden: int = 16,
+#                  coord_layers: int = 3,
+#                  # decoder / manifold net settings
+#                  decoder_hidden: int = 64,
+#                  decoder_layers: int = 6):
+#         super().__init__()
+
+#         # 1) build parameter encoder with param_layers of (Linear→Tanh)
+#         pe_layers = []
+#         # first layer: param_in → param_hidden
+#         pe_layers += [nn.Linear(5,  param_hidden), nn.Tanh()]
+#         # then (param_layers-1) more hidden (param_hidden → param_hidden)
+#         for _ in range(param_layers - 1):
+#             pe_layers += [nn.Linear(param_hidden, param_hidden), nn.Tanh()]
+#         self.param_encoder = nn.Sequential(*pe_layers)
+
+#         # 2) coordinate encoder with coord_layers of (Linear→Tanh)
+#         ce_layers = [ nn.Linear(1, coord_hidden), nn.Tanh() ]
+#         for _ in range(coord_layers - 1):
+#             ce_layers += [nn.Linear(coord_hidden, coord_hidden), nn.Tanh()]
+#         self.coord_encoder = nn.Sequential(*ce_layers)
+
+#         # 3) decoder: input dim = param_hidden + coord_hidden
+#         dec_layers = [
+#             nn.Linear(param_hidden + coord_hidden, decoder_hidden),
+#             nn.Tanh()
+#         ]
+#         for _ in range(decoder_layers - 1):
+#             dec_layers += [ nn.Linear(decoder_hidden, decoder_hidden), nn.Tanh() ]
+#         dec_layers.append(nn.Linear(decoder_hidden, 1))
+#         self.decoder = nn.Sequential(*dec_layers)
+    # def forward(self, t, m, mu, k, y0, v0):
+    #     # form the two inputs
+    #     eq_input = torch.cat([m, mu, k, y0, v0], dim=1)  # (batch,5)
+    #     tc_input = t                                      # (batch,1)
+
+    #     h_p = self.param_encoder(eq_input)                # (batch,param_hidden)
+    #     h_c = self.coord_encoder(tc_input)                # (batch,coord_hidden)
+    #     h   = torch.cat([h_p, h_c], dim=1)                # (batch,param_hidden+coord_hidden)
+    #     y   = self.decoder(h)                             # (batch,1)
+    #     return y
+
 class P2INN_oscillator(nn.Module):
     def __init__(self,
                  # parameter encoder settings
@@ -80,42 +128,54 @@ class P2INN_oscillator(nn.Module):
                  decoder_layers: int = 6):
         super().__init__()
 
-        # 1) build parameter encoder with param_layers of (Linear→Tanh)
-        pe_layers = []
-        # first layer: param_in → param_hidden
-        pe_layers += [nn.Linear(5,  param_hidden), nn.Tanh()]
-        # then (param_layers-1) more hidden (param_hidden → param_hidden)
+        # 1) Parameter encoder
+        pe_layers = [nn.Linear(5, param_hidden), nn.Tanh()]
         for _ in range(param_layers - 1):
             pe_layers += [nn.Linear(param_hidden, param_hidden), nn.Tanh()]
         self.param_encoder = nn.Sequential(*pe_layers)
 
-        # 2) coordinate encoder with coord_layers of (Linear→Tanh)
-        ce_layers = [ nn.Linear(1, coord_hidden), nn.Tanh() ]
+        # 2) Coordinate encoder
+        ce_layers = [nn.Linear(1, coord_hidden), nn.Tanh()]
         for _ in range(coord_layers - 1):
             ce_layers += [nn.Linear(coord_hidden, coord_hidden), nn.Tanh()]
         self.coord_encoder = nn.Sequential(*ce_layers)
 
-        # 3) decoder: input dim = param_hidden + coord_hidden
-        dec_layers = [
-            nn.Linear(param_hidden + coord_hidden, decoder_hidden),
-            nn.Tanh()
-        ]
+        # 3) Decoder
+        dec_layers = [nn.Linear(param_hidden + coord_hidden, decoder_hidden), nn.Tanh()]
         for _ in range(decoder_layers - 1):
-            dec_layers += [ nn.Linear(decoder_hidden, decoder_hidden), nn.Tanh() ]
+            dec_layers += [nn.Linear(decoder_hidden, decoder_hidden), nn.Tanh()]
         dec_layers.append(nn.Linear(decoder_hidden, 1))
         self.decoder = nn.Sequential(*dec_layers)
 
     def forward(self, t, m, mu, k, y0, v0):
-        # form the two inputs
-        eq_input = torch.cat([m, mu, k, y0, v0], dim=1)  # (batch,5)
-        tc_input = t                                      # (batch,1)
+        # t, m, mu, k, y0, v0 each have shape (..., 1)
+        orig_shape = t.shape                  # e.g. (Nt,1) or (B,Nt,1)
+        batch_size = math.prod(orig_shape[:-1])
 
-        h_p = self.param_encoder(eq_input)                # (batch,param_hidden)
-        h_c = self.coord_encoder(tc_input)                # (batch,coord_hidden)
-        h   = torch.cat([h_p, h_c], dim=1)                # (batch,param_hidden+coord_hidden)
-        y   = self.decoder(h)                             # (batch,1)
-        return y
+        # flatten helper: (...,1) -> (batch_size,1)
+        def flatten(x):
+            return x.reshape(batch_size, -1)
 
+        t_flat  = flatten(t)
+        m_flat  = flatten(m)
+        mu_flat = flatten(mu)
+        k_flat  = flatten(k)
+        y0_flat = flatten(y0)
+        v0_flat = flatten(v0)
+
+        # 1) parameter encoding
+        eq_input = torch.cat([m_flat, mu_flat, k_flat, y0_flat, v0_flat], dim=1)  
+        h_p = self.param_encoder(eq_input)            # (batch_size, param_hidden)
+
+        # 2) coordinate encoding
+        h_c = self.coord_encoder(t_flat)              # (batch_size, coord_hidden)
+
+        # 3) decoding
+        h      = torch.cat([h_p, h_c], dim=1)         # (batch_size, param_hidden+coord_hidden)
+        y_flat = self.decoder(h)                      # (batch_size, 1)
+
+        # 4) reshape back to (...,1)
+        return y_flat.view(*orig_shape)
 
 def z_score_denormalize(x, norm_info_param):
     """
