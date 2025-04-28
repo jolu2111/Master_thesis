@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import torch
 import torch.nn as nn
 import random
+import math
 
 
 # Set seed for reproducibility
@@ -13,26 +14,58 @@ def set_seed(seed=42):
     torch.cuda.manual_seed(seed)
     torch.cuda.manual_seed_all(seed)
 
-# Define the PINN model
+# # Define the PINN model
+# class PINN_vanilla_oscillator(nn.Module):
+#     def __init__(self, hidden_size=20, hidden_layers=3):
+#         super(PINN_vanilla_oscillator, self).__init__()
+#         input_dim = 6
+#         layers = [nn.Linear(input_dim, hidden_size), nn.Tanh()]
+        
+#         for _ in range(hidden_layers):
+#             layers.append(nn.Linear(hidden_size, hidden_size))
+#             layers.append(nn.Tanh())
+        
+#         layers.append(nn.Linear(hidden_size, 1))
+#         self.net = nn.Sequential(*layers)
+    
+#     def forward(self, t, m, mu, k, y0, v0):
+#         x = torch.cat([t, m, mu, k, y0, v0], dim=1)
+#         return self.net(x)
+
 class PINN_vanilla_oscillator(nn.Module):
     def __init__(self, hidden_size=20, hidden_layers=3):
-        super(PINN_vanilla_oscillator, self).__init__()
-        input_dim = 6
-        layers = [nn.Linear(input_dim, hidden_size), nn.Tanh()]
-        
+        super().__init__()
+        layers = [nn.Linear(6, hidden_size), nn.Tanh()]
         for _ in range(hidden_layers):
-            layers.append(nn.Linear(hidden_size, hidden_size))
-            layers.append(nn.Tanh())
-        
+            layers += [nn.Linear(hidden_size, hidden_size), nn.Tanh()]
         layers.append(nn.Linear(hidden_size, 1))
         self.net = nn.Sequential(*layers)
     
     def forward(self, t, m, mu, k, y0, v0):
-        x = torch.cat([t, m, mu, k, y0, v0], dim=1)
-        return self.net(x)
+        # t, m, mu, k, y0, v0 each have shape (..., 1)
+        orig_shape = t.shape        # e.g. (Nt,1) or (B,Nt,1)
+        # compute batch_size = product of all dims except the last one
+        batch_size = math.prod(orig_shape[:-1])  # pure-Python, no .item()
 
-import torch
-import torch.nn as nn
+        # flatten all leading dims into one
+        def flatten(x):
+            return x.reshape(batch_size, -1)  # -1 is the feature dim (1)
+
+        t_flat  = flatten(t)
+        m_flat  = flatten(m)
+        mu_flat = flatten(mu)
+        k_flat  = flatten(k)
+        y0_flat = flatten(y0)
+        v0_flat = flatten(v0)
+        
+        # concatenate features -> (batch_size, 6)
+        x_flat = torch.cat([t_flat, m_flat, mu_flat, k_flat, y0_flat, v0_flat], dim=1)
+        
+        # single pass through the MLP
+        y_flat = self.net(x_flat)       # (batch_size, 1)
+        
+        # reshape back to original (..., 1)
+        return y_flat.view(*orig_shape)
 
 class P2INN_oscillator(nn.Module):
     def __init__(self,

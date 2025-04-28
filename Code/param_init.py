@@ -105,10 +105,10 @@ def initialize_param(N, distribute=None, specs=None, normalize=False):
                 tensor = z_score_normalize_simple(tensor, mean, std)
                 # Store normalization info for later inversion in the loss functions.
                 norm_info[param] = {'mean': mean, 'std': std}
-            tensor.requires_grad_(True)
+            # tensor.requires_grad_(True)  ################### This is unneecasrry, try without!!
         else:
             # Use a constant value for non-distributed parameters.
-            tensor = torch.tensor([[mean]], requires_grad=True)
+            tensor = torch.tensor([[mean]])#, requires_grad=True)
             tensor = tensor.expand(N, -1)
         params[param] = tensor
 
