@@ -99,6 +99,8 @@ This will give the function pi(x).
 
 - Should time also be a part of the LHS? I am currently first having t and params randomnlt distributed, and the adaptive scheme is improving the choise of params, but the time is still randomly chosen. 
 
+- When choosing h - I think the pdf should have a litle less influence on h, and g should have a lot of influence. 
+
 <!-- - Should I focus on how a presumably well-trained PINN can be utilized for probabilistic design, and ignore the accuracy of the PINN itself, or should I also/ rather focus on the performance of the PINN or NN. Ref https://arxiv.org/pdf/2501.16371 that talks about what optimizers work the best.
 
     - Concentrate on the usage first, not a good model

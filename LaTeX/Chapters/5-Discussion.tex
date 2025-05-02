@@ -5,3 +5,23 @@
 Only done it for normally non-correlated distributed input paramters 
 
 Have to assume an initial error for the PINN model when calcuating pi function. 
+
+\subsection*{Effect of the model error \texorpdfstring{$\sigma_e$}{sigma\_e} on MCMC performance}
+
+During the implementation of the Metropolis-Hastings algorithm, it was observed that the sampler failed to effectively explore the region of interest—specifically, the failure region where the limit state function $G(u) < 0$. This behavior was traced back to the choice of the model error $\sigma_e$, which appears in the probability of failure expression:
+
+\[
+\pi(u) = \Phi\left(-\frac{G(u)}{\sigma_e}\right),
+\]
+
+where $\Phi$ denotes the standard normal cumulative distribution function. When $\sigma_e$ is set too high, the function $\pi(u)$ becomes overly smooth and flat. As a result, even input samples $u$ with significantly negative values of $G(u)$ (which indicate strong failures) do not achieve noticeably higher values of $\pi(u)$ compared to safe samples. This flattens the distribution and causes the acceptance probability $\alpha$ in the Metropolis-Hastings step,
+
+\[
+\alpha = \frac{\pi(u_{\text{prop}}) f(u_{\text{prop}})}{\pi(u_{\text{curr}}) f(u_{\text{curr}})},
+\]
+
+to be dominated by the prior density $f(u)$. Consequently, the sampler essentially behaves as though it is drawing from the prior, rather than being guided by the structure of the failure region.
+
+To address this issue, a smaller value of $\sigma_e$ was chosen. This adjustment increased the sensitivity of $\pi(u)$ with respect to $G(u)$, thereby sharpening the probability landscape. In effect, samples with lower values of $G(u)$ received significantly higher weights, which improved the algorithm's ability to identify and explore the failure region.
+
+This tuning of $\sigma_e$ was essential for the Metropolis-Hastings sampler to focus more effectively on the regions of high failure probability.
