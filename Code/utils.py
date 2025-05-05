@@ -4,6 +4,7 @@ import torch
 import torch.nn as nn
 import random
 import math
+import os
 
 
 # Set seed for reproducibility
@@ -243,25 +244,80 @@ def boundary_loss(model, t0, m, mu, k, y0, v0,norm_info=None):
     # Compute the boundary loss using physical parameters.
     return torch.mean((y_pred - y0_phys)**2 + (y_t - v0_phys)**2)
 
-def plot_loss(epoch, losses_dict):
+from batching import make_input_params_batched
+# Include the evasluation of exact solutions into the loss 
+def data_loss(PINN_model, datapoints, y_exact_datapoints, norm_info, lambda_data=1.0):
+    """
+    Compute the data loss for the PINN model.
+
+    Args:
+        PINN_model: The PINN model.
+        datapoints: The centers of the clusters.
+        y_exact_datapoints: The exact solutions at the cluster centers. (numpy)
+        lambda_data: The weight for the data loss.
+
+    Returns:
+        The data loss value scaled by lambda_data.
+    """
+    timepoints = torch.linspace(0, 1, len(y_exact_datapoints[0])).view(-1, 1)
+
+    # Compute the predicted values at the cluster centers
+    pred_params = make_input_params_batched(timepoints, torch.from_numpy(datapoints).float(), norm_info)
+
+    t_batch = timepoints.view(1, timepoints.shape[0], 1).expand(y_exact_datapoints.shape[0], timepoints.shape[0], 1)  # (B, Nt, 1)
+
+    y_pred = PINN_model(t_batch, *pred_params).squeeze(-1)  # (B, Nt, 1) -> (B, Nt)
+
+    # Reshape y_exact_datapoints to match y_pred
+    y_exact_tensor = torch.from_numpy(y_exact_datapoints).float()
+
+    # Compute the data loss
+    data_loss_value = torch.mean((y_pred - y_exact_tensor)**2)
+    return data_loss_value * lambda_data  
+
+def plot_loss(losses_dict):
     plt.figure(figsize=(5, 3))
+    # Find the maximum length among non-empty loss lists
+    total_epochs = max((len(v) for v in losses_dict.values()), default=0)
+
     for loss_name, loss_values in losses_dict.items():
-        plt.plot(epoch, loss_values, label=loss_name)
+        n = len(loss_values)
+        if n == 0:
+            continue  # skip empty losses
+
+        # If this curve is shorter than the longest one, offset it to the right
+        if n < total_epochs:
+            offset = total_epochs - n
+            x = range(offset, offset + n)
+        else:
+            x = range(n)
+
+        plt.plot(x, loss_values, label=loss_name)
+
     plt.yscale('log')
     plt.title('Losses')
     plt.xlabel('Epoch')
     plt.ylabel('Loss')
     plt.legend()
+    plt.tight_layout()
     plt.show()
 
 # Trainer class to manage training process
 class Trainer:
-    def __init__(self, model, optimizer, epochs=4001, lambda_bc=10.0):
+    def __init__(self, model, optimizer, epochs=4001, lambda_residual = 1.0, lambda_bc=10.0, lambda_data=1.0, datapoints = None, y_exact_datapoints=None):
+
         self.model = model
         self.optimizer = optimizer
         self.epochs = epochs
-        self.losses = {"Residual Loss": [], "Boundary Loss": []}
+        if os.path.exists("loss_history.npy"): 
+            self.losses = np.load("loss_history.npy", allow_pickle=True).tolist()
+        else:
+            self.losses = {"Residual Loss": [], "Boundary Loss": [], "Data Loss": []}
+        self.lambda_residual = lambda_residual
         self.lambda_bc = lambda_bc
+        self.lambda_data = lambda_data
+        self.datapoints = datapoints
+        self.y_exact_datapoints = y_exact_datapoints
 
     def train(self, *args):
         # Allow passing a single dictionary argument, or individual tensors.
@@ -280,24 +336,48 @@ class Trainer:
             t_coll, m_val, mu_val, k_val, y0_val, v0_val, t0 = args
             norm_info = None
 
-        best_loss = float("inf")
+        # Initialize best loss so far
+        # if all three lists are empty, use +∞
+        if not any(self.losses.values()):
+            best_loss = float("inf")
+        else:
+            # otherwise grab last entry or 0.0
+            res_last  = self.losses["Residual Loss"][-1]  if self.losses["Residual Loss"] else 0.0
+            bc_last   = self.losses["Boundary Loss"][-1]  if self.losses["Boundary Loss"] else 0.0
+            data_last = self.losses["Data Loss"][-1]      if self.losses["Data Loss"] else 0.0
+
+            best_loss = (
+                res_last  * self.lambda_residual +
+                bc_last   * self.lambda_bc +
+                data_last * self.lambda_data
+            )
+
         for epoch in range(self.epochs):
             self.optimizer.zero_grad()
             loss_pde = pde_loss(self.model, t_coll, m_val, mu_val, k_val, y0_val, v0_val, norm_info)
             loss_bc = boundary_loss(self.model, t0, m_val, mu_val, k_val, y0_val, v0_val, norm_info)
-            loss = loss_pde + self.lambda_bc * loss_bc
+            self.losses["Residual Loss"].append(loss_pde.item())
+            self.losses["Boundary Loss"].append(loss_bc.item())
+
+            # If data loss is provided, add it to the total loss
+            if self.datapoints is not None and self.y_exact_datapoints is not None:
+                loss_data = data_loss(self.model, self.datapoints, self.y_exact_datapoints, norm_info, lambda_data=self.lambda_data)
+                self.losses["Data Loss"].append(loss_data.item())
+                loss = loss_pde * self.lambda_residual + self.lambda_bc * loss_bc + loss_data * self.lambda_data
+            else:
+                # If no data loss is provided, just use the PDE and boundary losses
+                loss = loss_pde * self.lambda_residual + loss_bc * self.lambda_bc
             loss.backward()
             self.optimizer.step()
 
-            self.losses["Residual Loss"].append(loss_pde.item())
-            self.losses["Boundary Loss"].append(loss_bc.item())
             current_loss = loss.item()
             if current_loss < best_loss:
                 best_loss = current_loss
 
             if epoch % 1000 == 0:
                 print(f"Epoch {epoch}, PDE loss: {loss_pde.item()}, BC loss: {loss_bc.item()}")
-                plot_loss(range(epoch + 1), self.losses)
+                plot_loss(self.losses)
+                np.save("loss_history.npy", self.losses)
         print(f"Phase 1 complete. Best loss so far: {best_loss}")
 
         # Phase 2: Continue training until an epoch is reached with loss below the best_loss from Phase 1.
@@ -306,20 +386,31 @@ class Trainer:
             self.optimizer.zero_grad()
             loss_pde = pde_loss(self.model, t_coll, m_val, mu_val, k_val, y0_val, v0_val, norm_info)
             loss_bc = boundary_loss(self.model, t0, m_val, mu_val, k_val, y0_val, v0_val, norm_info)
-            loss = loss_pde + self.lambda_bc * loss_bc
+            self.losses["Residual Loss"].append(loss_pde.item())
+            self.losses["Boundary Loss"].append(loss_bc.item())
+
+            # If data loss is provided, add it to the total loss
+            if self.datapoints is not None and self.y_exact_datapoints is not None:
+                loss_data = data_loss(self.model, self.datapoints, self.y_exact_datapoints, norm_info, lambda_data=self.lambda_data)
+                self.losses["Data Loss"].append(loss_data.item())
+                loss = loss_pde * self.lambda_residual + self.lambda_bc * loss_bc + loss_data * self.lambda_data
+            else:
+                # If no data loss is provided, just use the PDE and boundary losses
+                loss = loss_pde * self.lambda_residual + loss_bc * self.lambda_bc
+
             loss.backward()
             self.optimizer.step()
 
             extra_epochs += 1
             epoch += 1
             current_loss = loss.item()
-            self.losses["Residual Loss"].append(loss_pde.item())
-            self.losses["Boundary Loss"].append(loss_bc.item())
 
             if extra_epochs % 1000 == 0:
                 print(f"Extra Epoch {extra_epochs}, PDE loss: {loss_pde.item()}, BC loss: {loss_bc.item()}")
-                plot_loss(range(epoch + 1), self.losses)
+                plot_loss(self.losses)
+                np.save("loss_history.npy", self.losses)
             if current_loss < best_loss:
                 print(f"Improved loss found: {current_loss} (after {extra_epochs} extra epochs)")
-                plot_loss(range(epoch + 1), self.losses)
+                plot_loss(self.losses)
+                np.save("loss_history.npy", self.losses)
                 break

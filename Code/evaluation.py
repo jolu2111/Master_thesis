@@ -1,5 +1,7 @@
 from utils import z_score_normalize
 import torch
+import numpy as np
+from exact_sol import damped_harmonic_oscillator
 
 def make_input_params(t_test, values, norm_info=None):
     ''' 
@@ -56,3 +58,53 @@ def limit_state_function_G(model, t, pred_params, differentiable=False, gamma=10
         # The limit state function is then defined as:
         g = min_y + 1.0
         return g
+    
+import itertools
+def combo_evaluation(PINN_model, specs, norm_info, Num_times=100):
+    """
+    Evaluate the PINN model for a combination of distributed parameters.
+    """
+
+    t_coll = torch.linspace(0, specs['t']['range'], Num_times).view(-1, 1) / norm_info['t']['range']            
+    t_test = np.linspace(0, specs['t']['range'], Num_times)
+
+    combo_values = {}
+    mean_values = {}
+    for param in ['m', 'mu', 'k', 'y0', 'v0']:
+        spec = specs[param]
+        mean = spec['mean']
+        std = spec['std']
+        lower = mean + spec['lower_multiplier'] * std
+        upper = mean + spec['upper_multiplier'] * std
+        
+        if param in norm_info:
+            combo_value = np.linspace(lower, upper,6) 
+            combo_values[param] = combo_value
+        else:
+            # Use a constant value for non-distributed parameters.
+            mean_value = np.array([[mean]])
+            mean_values[param] = mean_value
+
+    errors = []
+    combos = list(itertools.product(*combo_values.values()))
+    print(f"Number of combinations: {len(combos)}")
+    for combo in combos:
+        input_values =[]
+        i=0
+        for param in ['m', 'mu', 'k', 'y0', 'v0']:
+            if param in norm_info:
+                input_values.append(combo[i])
+                i+=1
+            else:
+                input_values.append(mean_values[param].item())  
+        test_params = make_input_params(t_coll,input_values, norm_info)
+        # Get the PINN prediction
+        y_pred = PINN_model(t_coll, *test_params)
+        # Compute the exact solution
+        y_exact = damped_harmonic_oscillator(t_test, *input_values)
+        # Compute the mean squared error for this combination
+        mse = np.mean((y_pred.detach().numpy().flatten() - y_exact)**2)
+        errors.append(mse)
+
+    combined_mse = np.mean(errors)
+    return combined_mse

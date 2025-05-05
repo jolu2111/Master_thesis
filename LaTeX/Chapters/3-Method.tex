@@ -35,3 +35,7 @@ It is correct and \textit{intuitive} to multiply the CDF ($\pi(u)$) and the PDF 
 \end{itemize}
 
 This forms a valid joint distribution that you can use in the Metropolis-Hastings algorithm.
+
+
+
+% How the paper (Importance Sampling for PINNs) actually chooses points After identifying interesting regions (via DWT or another metric), the actual point selection is done using a weighted probability distribution over the sample pool: “We compute the sampling probability for each point using a normalized score... and sample points with probability proportional to that score.” Importance sampling for… In other words: Start with a pool of points (e.g. from LHS or uniformly sampled). Assign each point a score, like: Residual (if training a PINN), Gradient magnitude, Or your custom criterion (e.g. 𝜙(𝑥)=exp(−𝛼∣𝑔(𝑥)∣), to favor points near 𝑔=0).
