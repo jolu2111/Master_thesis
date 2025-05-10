@@ -81,7 +81,7 @@ This will give the function pi(x).
 
 - I can improve the algorithm of finding new training points by taking into account the pdf of the points I choose
 
-
+- Using more k_means points could give better alpha_hat, but this is expensive for FORM. 
 
 
 # Questions
