@@ -39,3 +39,96 @@ This forms a valid joint distribution that you can use in the Metropolis-Hasting
 
 
 % How the paper (Importance Sampling for PINNs) actually chooses points After identifying interesting regions (via DWT or another metric), the actual point selection is done using a weighted probability distribution over the sample pool: “We compute the sampling probability for each point using a normalized score... and sample points with probability proportional to that score.” Importance sampling for… In other words: Start with a pool of points (e.g. from LHS or uniformly sampled). Assign each point a score, like: Residual (if training a PINN), Gradient magnitude, Or your custom criterion (e.g. 𝜙(𝑥)=exp(−𝛼∣𝑔(𝑥)∣), to favor points near 𝑔=0).
+
+
+%------------------------------------------------------------
+%  Interface conditions for layered Terzaghi consolidation
+%------------------------------------------------------------
+\paragraph{Interface conditions for a multi--layer Terzaghi problem}
+Consider one--dimensional vertical consolidation of an $n$--layer soil column.
+Within the $i$--th layer the excess pore pressure $u(t,z)$ satisfies
+\begin{equation}
+  \frac{\partial u}{\partial t}
+  \;=\;
+  c_{v,i}\,
+  \frac{\partial^{2}u}{\partial z^{2}},
+  \qquad
+  c_{v,i}
+  \;=\;
+  \frac{k_i}{m_{v,i}\,\gamma_w},
+  \label{eq:terzaghi_dim}
+\end{equation}
+where $k_i$ is the hydraulic conductivity, $m_{v,i}$ the coefficient of
+volume compressibility and $\gamma_w$ the unit weight of water.
+Let $z=z_I$ denote the interface between layer $i$ (``up") and layer $i{+}1$
+(``down").  Two physical requirements must hold there:
+
+\begin{enumerate}\setlength\itemsep{0pt}
+\item \textbf{Continuity of pressure}
+      \[
+        u_i(t,z_I)=u_{i+1}(t,z_I),
+      \]
+\item \textbf{Continuity of Darcy flux}
+      (mass conservation across the interface).
+\end{enumerate}
+
+The vertical Darcy flux is
+\[
+  q \;=\;
+  -\,\frac{k}{\gamma_w}\,
+  \frac{\partial u}{\partial z},
+\]
+hence equating $q$ above and below $z_I$ (and cancelling $1/\gamma_w$) yields
+the flux--matching condition
+\begin{equation}
+  k_i\,
+  \frac{\partial u_i}{\partial z}
+  \;=\;
+  k_{i+1}\,
+  \frac{\partial u_{i+1}}{\partial z},
+  \qquad z=z_I.
+  \label{eq:flux_match_dim}
+\end{equation}
+
+\paragraph{Non--dimensional form}
+Introduce scaled variables $z = H\,\tilde z$ and $t = T\,\tilde t$,
+with $H=\sum_{j=1}^{n}H_j$ the total column height and $T$ a reference time
+(e.g.\ the observation period).
+Equation~\eqref{eq:terzaghi_dim} becomes
+\[
+  \frac{\partial u}{\partial\tilde t}
+  \;=\;
+  \alpha_i\,
+  \frac{\partial^{2}u}{\partial\tilde z^{2}},
+  \qquad
+  \alpha_i
+  \;=\;
+  \frac{c_{v,i}\,T}{H^{2}},
+\]
+while the Darcy flux rewrites to
+$
+  q = -\,\dfrac{k}{\gamma_w H}\,\dfrac{\partial u}{\partial\tilde z}.
+$
+Because the prefactor $1/(\gamma_w H)$ is common to both layers it cancels,
+so the dimensional condition~\eqref{eq:flux_match_dim} remains unchanged:
+\[
+  k_i\,
+  u_{\tilde z,i}
+  \;=\;
+  k_{i+1}\,
+  u_{\tilde z,i+1},
+  \qquad z=\tilde z_I.
+\]
+
+\noindent
+Therefore, irrespective of any space--time normalisation used in a
+physics--informed neural network or finite--difference discretisation, the
+correct interface conditions are
+\begin{align*}
+  u_i &= u_{i+1},\\[2pt]
+  k_i\,u_z &= k_{i+1}\,u_z,
+\end{align*}
+while the storage parameter $m_v$ (and thus $c_v$ or $\alpha$) influences only
+the intra--layer governing equation and plays \emph{no role} in the inter--layer
+flux balance.
+\
