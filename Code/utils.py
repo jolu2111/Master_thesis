@@ -16,23 +16,6 @@ def set_seed(seed=42):
     torch.cuda.manual_seed_all(seed)
 
 # # Define the PINN model
-# class PINN_vanilla_oscillator(nn.Module):
-#     def __init__(self, hidden_size=20, hidden_layers=3):
-#         super(PINN_vanilla_oscillator, self).__init__()
-#         input_dim = 6
-#         layers = [nn.Linear(input_dim, hidden_size), nn.Tanh()]
-        
-#         for _ in range(hidden_layers):
-#             layers.append(nn.Linear(hidden_size, hidden_size))
-#             layers.append(nn.Tanh())
-        
-#         layers.append(nn.Linear(hidden_size, 1))
-#         self.net = nn.Sequential(*layers)
-    
-#     def forward(self, t, m, mu, k, y0, v0):
-#         x = torch.cat([t, m, mu, k, y0, v0], dim=1)
-#         return self.net(x)
-
 class PINN_vanilla_oscillator(nn.Module):
     def __init__(self, hidden_size=20, hidden_layers=3):
         super().__init__()
@@ -67,54 +50,6 @@ class PINN_vanilla_oscillator(nn.Module):
         
         # reshape back to original (..., 1)
         return y_flat.view(*orig_shape)
-
-# class P2INN_oscillator(nn.Module):
-#     def __init__(self,
-#                  # parameter encoder settings
-#                  param_hidden: int = 32,
-#                  param_layers: int = 4,
-#                  # coordinate encoder settings
-#                  coord_hidden: int = 16,
-#                  coord_layers: int = 3,
-#                  # decoder / manifold net settings
-#                  decoder_hidden: int = 64,
-#                  decoder_layers: int = 6):
-#         super().__init__()
-
-#         # 1) build parameter encoder with param_layers of (Linear→Tanh)
-#         pe_layers = []
-#         # first layer: param_in → param_hidden
-#         pe_layers += [nn.Linear(5,  param_hidden), nn.Tanh()]
-#         # then (param_layers-1) more hidden (param_hidden → param_hidden)
-#         for _ in range(param_layers - 1):
-#             pe_layers += [nn.Linear(param_hidden, param_hidden), nn.Tanh()]
-#         self.param_encoder = nn.Sequential(*pe_layers)
-
-#         # 2) coordinate encoder with coord_layers of (Linear→Tanh)
-#         ce_layers = [ nn.Linear(1, coord_hidden), nn.Tanh() ]
-#         for _ in range(coord_layers - 1):
-#             ce_layers += [nn.Linear(coord_hidden, coord_hidden), nn.Tanh()]
-#         self.coord_encoder = nn.Sequential(*ce_layers)
-
-#         # 3) decoder: input dim = param_hidden + coord_hidden
-#         dec_layers = [
-#             nn.Linear(param_hidden + coord_hidden, decoder_hidden),
-#             nn.Tanh()
-#         ]
-#         for _ in range(decoder_layers - 1):
-#             dec_layers += [ nn.Linear(decoder_hidden, decoder_hidden), nn.Tanh() ]
-#         dec_layers.append(nn.Linear(decoder_hidden, 1))
-#         self.decoder = nn.Sequential(*dec_layers)
-    # def forward(self, t, m, mu, k, y0, v0):
-    #     # form the two inputs
-    #     eq_input = torch.cat([m, mu, k, y0, v0], dim=1)  # (batch,5)
-    #     tc_input = t                                      # (batch,1)
-
-    #     h_p = self.param_encoder(eq_input)                # (batch,param_hidden)
-    #     h_c = self.coord_encoder(tc_input)                # (batch,coord_hidden)
-    #     h   = torch.cat([h_p, h_c], dim=1)                # (batch,param_hidden+coord_hidden)
-    #     y   = self.decoder(h)                             # (batch,1)
-    #     return y
 
 class P2INN_oscillator(nn.Module):
     def __init__(self,
